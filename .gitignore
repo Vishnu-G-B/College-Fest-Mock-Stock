@@ -1,0 +1,6 @@
+/Backend/env/
+/Backend/config.cfg
+/Frontend/.eslintrc.cjs
+/Frontend/.vscode/extensions.json
+/.vscode/settings.json
+/Backend/__pycache__/
