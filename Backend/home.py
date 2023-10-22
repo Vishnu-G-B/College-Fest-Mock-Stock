@@ -10,21 +10,86 @@ home_bp = Blueprint("home", __name__, url_prefix="/api/v1/home")
 
 CORS(home_bp)
 
-@home_bp.route("/operation", methods=["POST"])
+
+# @home_bp.route("/operation", methods=["POST"])
+# def operation():
+#     if request.method == "POST":
+#         # short selling check for quantity if quantity is equal to zero
+#         # buy back (opposite of selling) if quantity is negative
+#         current_df = pd.read_csv("./current_stock_counter.csv")
+#         client = database.Supa()
+#         user_id: str = request.json.get("userId", None)
+#         stock_name: str = request.json.get("stockName", None)
+#         operation: str = request.json.get("operation", None)
+#         quantity: int = int(request.json.get("quantity", None))
+#         current_value: int = global_var.df[stock_name][current_df.iat[0, 0] - 1]
+#         return_value = client.operation_insertion(
+#             user_id, stock_name, operation, quantity, current_value
+#         )
+#         return_value["response"]["held_stocks"] = client.fetch_held_stocks(user_id)
+#         return json.dumps(return_value["response"])
+
+
+@home_bp.route("/buy", methods=["POST"])
 def buy_stocks():
     if request.method == "POST":
-        # short selling check for quantity if quantity is equal to zero
-        # buy back (opposite of selling) if quantity is negative
         current_df = pd.read_csv("./current_stock_counter.csv")
         client = database.Supa()
         user_id: str = request.json.get("userId", None)
         stock_name: str = request.json.get("stockName", None)
-        operation: str = request.json.get("operation", None)
         quantity: int = int(request.json.get("quantity", None))
         current_value: int = global_var.df[stock_name][current_df.iat[0, 0] - 1]
-        return_value = client.operation_insertion(user_id,
-            stock_name, operation, quantity, current_value)
-        return_value["response"]["held_stocks"] = client.fetch_held_stocks(user_id)
+        return_value: dict = client.buy_operation(
+            user_id, stock_name, current_value, quantity
+        )
+        return json.dumps(return_value["response"])
+
+
+@home_bp.route("/sell", methods=["POST"])
+def sell_stocks():
+    if request.method == "POST":
+        current_df = pd.read_csv("./current_stock_counter.csv")
+        client = database.Supa()
+        user_id: str = request.json.get("userId", None)
+        stock_name: str = request.json.get("stockName", None)
+        quantity: int = int(request.json.get("quantity", None))
+        current_value: int = global_var.df[stock_name][current_df.iat[0, 0] - 1]
+        return_value: dict = client.sell_operation(
+            user_id, stock_name, current_value, quantity
+        )
+        print(return_value["response"])
+        return json.dumps(return_value["response"])
+
+
+@home_bp.route("/short-sell", methods=["POST"])
+def short_sell_stocks():
+    if request.method == "POST":
+        current_df = pd.read_csv("./current_stock_counter.csv")
+        client = database.Supa()
+        user_id: str = request.json.get("userId", None)
+        stock_name: str = request.json.get("stockName", None)
+        quantity: int = int(request.json.get("quantity", None))
+        current_value: int = global_var.df[stock_name][current_df.iat[0, 0] - 1]
+        return_value: dict = client.short_sell_operation(
+            user_id, stock_name, current_value, quantity
+        )
+        return json.dumps(return_value["response"])
+
+
+@home_bp.route("/short-buy", methods=["POST"])
+def short_buy_stocks():
+    if request.method == "POST":
+        current_df = pd.read_csv("./current_stock_counter.csv")
+        client = database.Supa()
+        user_id: str = request.json.get("userId", None)
+        stock_name: str = request.json.get("stockName", None)
+        print(stock_name)
+        quantity: int = int(request.json.get("quantity", None))
+        current_value: int = global_var.df[stock_name][current_df.iat[0, 0] - 1]
+        return_value: dict = client.buy_operation(
+            user_id, stock_name, current_value, quantity, short_buy=True
+        )
+        print(return_value["response"])
         return json.dumps(return_value["response"])
 
 
@@ -60,7 +125,7 @@ def get_funds():
 @home_bp.route("/getheldstocks", methods=["POST"])
 def get_held_stocks():
     if request.method == "POST":
-      user_id: str = request.json.get("userId", None)
-      client = database.Supa()
-      data = client.fetch_held_stocks(user_id)
-      return json.dumps(data)
+        user_id: str = request.json.get("userId", None)
+        client = database.Supa()
+        data = client.fetch_held_stocks(user_id)
+        return json.dumps(data)

@@ -9,10 +9,12 @@
     "dev": "vite"
   },
   "dependencies": {
+    "apexcharts": "^3.44.0",
     "core-js": "^3.6.5",
     "socket.io-client": "^4.6.1",
     "socketio": "^1.0.0",
     "vue": "^2.6.11",
+    "vue-apexcharts": "^1.6.2",
     "vue-resource": "^1.5.1",
     "vue-router": "^3.4.3",
     "vue-socket.io": "^3.0.10",

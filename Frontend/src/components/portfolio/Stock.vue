@@ -8,7 +8,7 @@
           </strong>
           <div class="pull-right">
             Op: {{ stock.operation.toUpperCase() }}
-            Price: {{ stock.bought_at }}  &nbsp;&nbsp;
+            Price: {{ stock.current_stock_value }} &nbsp;&nbsp;
             Quantity: {{ stock.quantity }}
           </div>
         </h3>

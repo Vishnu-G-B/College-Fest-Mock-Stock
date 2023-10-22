@@ -4,3 +4,5 @@
 /Frontend/.vscode/extensions.json
 /.vscode/settings.json
 /Backend/__pycache__/
+/Backend/PRICE_LIST_DEMO.csv
+/Backend/flask_session/**

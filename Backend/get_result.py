@@ -6,7 +6,7 @@ all_users = []
 main_dict = {}
 # Adani Enterprises,HDFC Bank,Reliance,Tata Motors,ITC,HAL,PayTM,Zomato,CIPLA,BPCL
 last_value_for_all_stocks = {
-  'Adani Enterprises': 1925,
+  'Adani Enterprises': 1,
   'HDFC Bank': 1390,
   'Reliance': 1708,
   'Tata Motors': 423,

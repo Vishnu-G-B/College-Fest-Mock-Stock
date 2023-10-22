@@ -7,12 +7,23 @@ Vue.use(Vuex);
 export const store = new Vuex.Store({
     plugins: [
         createPersistedState({
-            paths: ["stock", "isLoggedIn", "funds", "heldStocks", "userId", "nb", "priceb"],
+            paths: [
+                "stock",
+                "isLoggedIn",
+                "funds",
+                "heldStocks",
+                "userId",
+                "nb",
+                "priceb",
+                "history",
+                "stockPrices",
+            ],
             storage: window.sessionStorage,
         }),
     ],
     state: {
         stock: [{}],
+        history: [],
         nb: "http://localhost:5000/",
         priceb: "http://localhost:5001/",
         heldStocks: [{}],
@@ -25,7 +36,8 @@ export const store = new Vuex.Store({
         funds: 0,
         fundsError: "",
         fundsErrorBool: false,
-        userId: '',
+        userId: "",
+        stockPrices: {},
     },
 
     getters: {
@@ -40,17 +52,26 @@ export const store = new Vuex.Store({
         userId(state) {
             return state.userId;
         },
-        nb(state){
+        nb(state) {
             return state.nb;
         },
-        priceb(state){
+        priceb(state) {
             return state.priceb;
-        }
+        },
     },
 
     mutations: {
         setStock: (state, value) => {
             state.stock = value;
+            for (let index in state.stock) {
+                const stockName = state.stock[index].name;
+                const stockPrice = parseInt(state.stock[index].price);
+                if (!state.stockPrices[stockName]) {
+                    state.stockPrices[stockName] = [];
+                }
+                state.stockPrices[stockName].push(stockPrice);
+            }
+            console.log(state.stockPrices);
         },
         setIsLoggedIn: (state, value) => {
             state.isLoggedIn = value;
@@ -87,7 +108,7 @@ export const store = new Vuex.Store({
         initFunds: (context) => {
             // fetch("http://172.20.15.33:5000/api/v1/home/getfunds", {
             let data = {
-                "userId": context.getters.userId,
+                userId: context.getters.userId,
             };
             fetch(context.getters.nb + "api/v1/home/getfunds", {
                 method: "POST",
@@ -110,7 +131,69 @@ export const store = new Vuex.Store({
                 userId: context.getters.userId,
             };
             // fetch("http://172.20.15.33:5000/api/v1/home/operation", {
-            fetch(context.getters.nb + "api/v1/home/operation", {
+            fetch(context.getters.nb + "api/v1/home/buy", {
+                method: "POST",
+                headers: {
+                    Authorization: "Test",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    if ("error" in data) {
+                        context.commit("setErrorFunds", data["error"]);
+                        context.commit("setErrorFundsBool", true);
+                        setTimeout(() => {
+                            context.dispatch("removeFundsError");
+                        }, 5000);
+                    } else if ("funds" in data) {
+                        context.commit("setFunds", data["funds"]);
+                        context.commit("setHeldStocks", data["held_stocks"]);
+                    }
+                });
+        },
+        shortBuyStocks: (context, payload) => {
+            let data = {
+                stockName: payload["name"],
+                quantity: payload["quantity"],
+                operation: "short_buy",
+                userId: context.getters.userId,
+            };
+            // fetch("http://172.20.15.33:5000/api/v1/home/operation", {
+            fetch(context.getters.nb + "api/v1/home/short-buy", {
+                method: "POST",
+                headers: {
+                    Authorization: "Test",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    if ("error" in data) {
+                        context.commit("setErrorFunds", data["error"]);
+                        context.commit("setErrorFundsBool", true);
+                        setTimeout(() => {
+                            context.dispatch("removeFundsError");
+                        }, 5000);
+                    } else if ("funds" in data) {
+                        context.commit("setFunds", data["funds"]);
+                        context.commit("setHeldStocks", data["held_stocks"]);
+                    }
+                });
+        },
+        shortSellStocks: (context, payload) => {
+            let data = {
+                stockName: payload["name"],
+                quantity: payload["quantity"],
+                operation: "buy",
+                userId: context.getters.userId,
+            };
+            // fetch("http://172.20.15.33:5000/api/v1/home/operation", {
+            fetch(context.getters.nb + "api/v1/home/short-sell", {
                 method: "POST",
                 headers: {
                     Authorization: "Test",
@@ -140,7 +223,7 @@ export const store = new Vuex.Store({
         getHeldStocks: (context) => {
             // fetch("http://172.20.15.33:5000/api/v1/home/getheldstocks", {
             let data = {
-                "userId": context.getters.userId,
+                userId: context.getters.userId,
             };
             fetch(context.getters.nb + "api/v1/home/getheldstocks", {
                 method: "POST",
@@ -157,8 +240,8 @@ export const store = new Vuex.Store({
         },
         sellStocks: (context, payload) => {
             // fetch("http://172.20.15.33:5000/api/v1/home/operation", {
-            payload['userId'] = context.getters.userId;
-            fetch(context.getters.nb + "api/v1/home/operation", {
+            payload["userId"] = context.getters.userId;
+            fetch(context.getters.nb + "api/v1/home/sell", {
                 method: "POST",
                 headers: {
                     Authorization: "Test",
