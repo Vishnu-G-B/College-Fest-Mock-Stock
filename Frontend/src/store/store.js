@@ -13,8 +13,6 @@ export const store = new Vuex.Store({
                 "funds",
                 "heldStocks",
                 "userId",
-                "nb",
-                "priceb",
                 "history",
                 "stockPrices",
             ],
@@ -25,7 +23,7 @@ export const store = new Vuex.Store({
         stock: [{}],
         history: [],
         nb: "http://localhost:5000/",
-        priceb: "http://localhost:5001/",
+        priceb: "http://10.29.17.10:5050/",
         heldStocks: [{}],
         eventSource: new EventSource(
             // "http://172.20.15.33:5001/api/v1/listenforstocks",

@@ -12,7 +12,7 @@
             <a>Portfolio</a>
           </router-link>
           <!-- Stocks text -> click return to stocks page -->
-          <KeepAlive> 
+          <KeepAlive>
             <router-link to="/stocks" active-class="active" tag="li">
               <a>Stocks</a>
             </router-link>
@@ -98,3 +98,13 @@ export default {
   // }
 };
 </script>
+
+<style scoped>
+.hidden-text {
+  visibility: hidden;
+}
+
+.hidden-text:hover {
+  visibility: visible;
+}
+</style>

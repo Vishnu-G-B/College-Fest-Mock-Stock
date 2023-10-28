@@ -369,66 +369,8 @@ class Supa:
 
         return {"data": data, "response": return_value}
 
-    # def fetch_held_stocks(self, user_id: str):
-    #     return_value = {}
-    #     bought_at = []
-    #     buy = (
-    #         self.supabase_client.table("main_ops_table")
-    #         .select("stock_name", "quantity")
-    #         .eq("user_id", f"{user_id}")
-    #         .eq("operation", "buy")
-    #         .eq("user_id", f"{user_id}")
-    #         .eq("operation", "buy")
-    #         .execute()
-    #     )
-    #     sell = (
-    #         self.supabase_client.table("main_ops_table")
-    #         .select("stock_name", "quantity")
-    #         .eq("user_id", f"{user_id}")
-    #         .eq("operation", "sell")
-    #         .execute()
-    #     )
-
-    #     all_ops = (
-    #         self.supabase_client.table("main_ops_table")
-    #         .select("stock_name", "quantity", "current_stock_value", "operation")
-    #         .eq("user_id", f"{user_id}")
-    #         .execute()
-    #     )
-
-    #     total_buy = 0
-    #     total_sell = 0
-    #     if len(buy.data) != 0:
-    #         for buy_value in buy.data:
-    #             if buy_value["stock_name"] in return_value:
-    #                 return_value[buy_value["stock_name"]] += buy_value["quantity"]
-    #             else:
-    #                 return_value[buy_value["stock_name"]] = buy_value["quantity"]
-    #             total_buy += buy_value["quantity"]
-    #     if len(sell.data) != 0:
-    #         for sell_value in sell.data:
-    #             if sell_value["stock_name"] in return_value:
-    #                 return_value[sell_value["stock_name"]] -= sell_value["quantity"]
-    #             else:
-    #                 return_value[sell_value["stock_name"]] = -(sell_value["quantity"])
-    #             total_sell += sell_value["quantity"]
-    #     temp = {}
-    #     for all_vals in all_ops.data:
-    #         temp["stock_name"] = all_vals["stock_name"]
-    #         temp["quantity"] = all_vals["quantity"]
-    #         temp["bought_at"] = all_vals["current_stock_value"]
-    #         temp["operation"] = all_vals["operation"]
-    #         bought_at.append(temp)
-    #         temp = {}
-
-    #     return_value["total_quantity"] = total_buy - total_sell
-    #     return_value["history"] = bought_at
-    #     # print(len(sell.data)) = 0 if empty
-    #     print(return_value)
-    #     return return_value
-
     def fetch_held_stocks(self, user_id: str):
-        held_stocks_w_history = {}
+        held_stocks_w_history = {"short_quantity": {}}
         all_operations: list[dict] = (
             (
                 self.supabase_client.table("main_ops_table")
@@ -441,10 +383,14 @@ class Supa:
         for indiDict in all_operations:
             if indiDict["stock_name"] not in held_stocks_w_history:
                 held_stocks_w_history[indiDict["stock_name"]] = 0
-            if indiDict["operation"] == "buy" or indiDict["operation"] == "short_buy":
+                held_stocks_w_history["short_quantity"][indiDict["stock_name"]] = 0
+            if indiDict["operation"] == "buy":
                 held_stocks_w_history[indiDict["stock_name"]] += indiDict["quantity"]
             elif indiDict["operation"] == "sell":
                 held_stocks_w_history[indiDict["stock_name"]] -= indiDict["quantity"]
+            elif indiDict["operation"] == "short_buy":
+                held_stocks_w_history["short_quantity"][
+                    indiDict["stock_name"]
+                ] += indiDict["quantity"]
         held_stocks_w_history["history"] = all_operations
-        # print(held_stocks_w_history)
         return held_stocks_w_history

@@ -1,35 +1,34 @@
 import database
+import pandas as pd
 
 client = database.Supa(admin=True)
 result = client.list_all_users()
 all_users = []
 main_dict = {}
-# Adani Enterprises,HDFC Bank,Reliance,Tata Motors,ITC,HAL,PayTM,Zomato,CIPLA,BPCL
-last_value_for_all_stocks = {
-  'Adani Enterprises': 1,
-  'HDFC Bank': 1390,
-  'Reliance': 1708,
-  'Tata Motors': 423,
-  'ITC': 152,
-  'HAL': 3365,
-  'PayTM': 1049,
-  'Zomato': 354,
-  'CIPLA': 906,
-  'BPCL': 661,
-  'Tata': 123,
-  'Google': 145,
-  'Apple': 120,
-  'Microsoft': 145.
-}
+df = pd.read_csv("./PRICE_LIST.csv")
+af = pd.read_csv("./current_stock_counter.csv")
+final_price = df.iloc[af["current_stock_counter"][0]]
 
-for i in result:
-  all_users.append(i.id)
-  
-for i in all_users:
-  value = client.fetch_held_stocks(i)
-  for key in value:
-    if(key != "total_quantity" and key != "history"):
-      return_value = client.operation_insertion(i, key, 'sell', value[key], last_value_for_all_stocks[key], True)
-      main_dict[i] = return_value['response']['funds']
-print({k: v for k, v in sorted(main_dict.items(), key=lambda item: item[1])})
-# print(main_dict)
+for indi_user in result:
+    remaining_stocks = client.fetch_held_stocks(str(indi_user.id))
+    for indi_stock_name in final_price.keys():
+        if indi_stock_name in remaining_stocks:
+            client.sell_operation(
+                indi_user.id,
+                indi_stock_name,
+                final_price[indi_stock_name],
+                remaining_stocks[indi_stock_name],
+            )
+            print(
+                f"sold {indi_user.id} {indi_stock_name} {final_price[indi_stock_name]} {remaining_stocks[indi_stock_name]}"
+            )
+        if indi_stock_name in remaining_stocks["short_quantity"]:
+            client.short_sell_operation(
+                indi_user.id,
+                indi_stock_name,
+                final_price[indi_stock_name],
+                remaining_stocks["short_quantity"][indi_stock_name],
+            )
+            print(
+                f"short sold {indi_user.id} {indi_stock_name} {final_price[indi_stock_name]} {remaining_stocks[indi_stock_name]}"
+            )

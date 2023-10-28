@@ -9,8 +9,9 @@
             {{ stock.name }}
           </strong>
           <div class="pull-right">
-            Price: {{ stock.price }} &nbsp;&nbsp;
-            Quantity: {{ heldStocks[stock.name] || 0 }}
+            Price: {{ stock.price }} &nbsp;&nbsp; |
+            Quantity: {{ heldStocks[stock.name] || 0 }} |
+            Short Quantity: {{ heldStocks["short_quantity"][stock.name] || 0 }}
           </div>
         </h3>
       </div>
@@ -144,7 +145,7 @@ export default {
       me.$refs.chart.updateSeries([{
         data: me.$store.state.stockPrices[me.stock.name],
       }])
-    }, 1000);
+    }, 5000);
   },
 };
 </script>
